@@ -70,8 +70,8 @@ async function createPDF(r){
   if(!window.jspdf){alert("Library PDF belum termuat. Pastikan internet aktif saat membuka aplikasi.");return}
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4"});
   const W=210, margin=18;
-  const logo=await imageData("assets/logo-dojo.png");
-  const stamp=await imageData("assets/stampel-dojo.png");
+  const logo=await imageData("logo-dojo.png");
+  const stamp=await imageData("stampel-dojo.png");
   doc.setDrawColor(20);doc.setLineWidth(.7);doc.rect(margin,18,W-margin*2,260);
   doc.addImage(logo.data,"PNG",margin+5,23,25,25);
   doc.setFont("helvetica","bold");doc.setFontSize(16);doc.text("KJI DOJO PANGANDARAN",margin+34,29);
@@ -88,7 +88,7 @@ async function createPDF(r){
   if(r.notes){doc.setFont("helvetica","normal");doc.text("Catatan: "+r.notes,margin+8,y,{maxWidth:W-margin*2-16});y+=12}
   const sx=135, sy=214;
   doc.setFont("helvetica","normal");doc.setFontSize(9);doc.text("Petugas Keuangan",sx+25,sy,{align:"center"});
-  doc.addImage(stamp.data,"JPEG",sx,sy+3,50,53);
+  doc.addImage(stamp.data,"png",sx,sy+3,50,53);
   doc.setFont("helvetica","bold");doc.setFontSize(8);doc.text("Gustian Sastriajie Kohar, ST., S.Pd.I",sx+25,sy+61,{align:"center"});
   doc.setFont("helvetica","normal");doc.setFontSize(8);doc.text("Bukti pembayaran ini dibuat sebagai tanda terima yang sah.",W/2,269,{align:"center"});
   doc.save((r.no||"bukti-pembayaran").replace(/[\/\\]/g,"-")+".pdf");
