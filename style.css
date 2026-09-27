@@ -1,0 +1,46 @@
+*{box-sizing:border-box}
+:root{--dark:#111827;--red:#b91c1c;--green:#166534;--blue:#1d4ed8;--bg:#f3f4f6;--card:#fff;--line:#e5e7eb;--muted:#6b7280;--text:#111827}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+.hidden{display:none!important}
+.login-screen{min-height:100vh;display:grid;place-items:center;background:var(--dark);padding:20px}
+.login-card{width:min(430px,100%);background:#fff;border-radius:20px;padding:30px;box-shadow:0 20px 70px rgba(0,0,0,.35);text-align:center}
+.login-logo{width:155px;height:155px;object-fit:contain}
+.login-card h1{font-size:22px;margin:8px 0 4px}
+.login-title{font-size:12px;font-weight:800;letter-spacing:1px;color:var(--muted);margin:0 0 22px}
+.login-card form{text-align:left}.login-card label{color:#374151}
+.login-hint{margin-top:15px;padding:10px;background:#f3f4f6;border-radius:9px;font-size:12px;color:#4b5563}
+.error{height:22px;color:var(--red);font-size:13px;text-align:center;margin-top:8px;font-weight:700}
+.topbar{background:var(--dark);color:#fff;padding:15px 0}
+.topbar-inner{max-width:1200px;margin:auto;padding:0 18px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:13px}.brand-logo{width:55px;height:55px;object-fit:contain;background:#fff;border-radius:10px}
+.brand h1{font-size:19px;margin:0}.brand p{font-size:11px;color:#d1d5db;margin:3px 0 0}
+.top-actions{display:flex;align-items:center;gap:10px;font-size:12px}
+.container{max-width:1200px;margin:auto;padding:22px 18px}
+.page-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:18px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px}
+.card-head h2{font-size:18px;margin:0}.card-head p{font-size:12px;color:var(--muted);margin:4px 0 0}
+label{display:block;font-size:12px;font-weight:700;color:#374151;margin:11px 0 5px}
+input,select,textarea{width:100%;border:1px solid #d1d5db;border-radius:9px;padding:10px 11px;background:#fff;font:inherit;font-size:14px}
+textarea{resize:vertical}.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{font:inherit;cursor:pointer}.primary,.success,.danger,.outline{border-radius:9px;padding:10px 14px;font-weight:800;border:1px solid transparent}
+.primary{background:var(--dark);color:#fff}.success{background:var(--green);color:#fff}.danger{background:var(--red);color:#fff}.outline{background:transparent;color:inherit;border-color:#9ca3af}
+.full{width:100%;margin-top:17px}.form-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}
+.message{min-height:20px;font-size:12px;color:var(--green);font-weight:700;margin-top:8px}
+.receipt{border:2px solid #111827;border-radius:7px;padding:18px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.07)}
+.receipt-header{display:flex;align-items:center;gap:12px;border-bottom:2px solid #111827;padding-bottom:10px}
+.receipt-logo{width:65px;height:65px;object-fit:contain}.receipt-header h3{margin:0;font-size:17px}.receipt-header strong{display:block;font-size:13px;margin-top:2px}.receipt-header small{font-size:9px;color:#4b5563}
+.receipt-number{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #d1d5db;font-size:12px}
+.receipt-table>div{display:flex;justify-content:space-between;gap:15px;padding:7px 0;border-bottom:1px dashed #d1d5db;font-size:12px}
+.receipt-table span{color:#6b7280}.receipt-table b{text-align:right}.receipt-table .total{font-size:14px;border-bottom:2px solid #111827;padding:11px 0}
+.terbilang{font-size:11px;font-style:italic;margin:12px 0}.pv-notes{font-size:10px;color:#4b5563;min-height:15px}
+.signature{display:flex;justify-content:flex-end;margin-top:12px}.stamp-wrap{text-align:center;width:210px;font-size:10px}
+.signature-space{height:105px;position:relative;display:flex;justify-content:center;align-items:center}
+.stamp{width:110px;height:110px;object-fit:contain;mix-blend-mode:multiply;opacity:.82}
+.stamp-wrap b{display:block;font-size:10px}
+.receipt-footer{text-align:center;font-size:8px;color:#6b7280;border-top:1px solid #ddd;margin-top:13px;padding-top:7px}
+.history-card{margin-top:0}.small-input{width:240px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid #e5e7eb;padding:9px;text-align:left;white-space:nowrap}th{background:#f9fafb}
+.mini{padding:6px 8px;border-radius:7px;border:0;background:#111827;color:#fff;font-size:11px}.mini.red{background:#b91c1c}
+@media(max-width:900px){.page-grid{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}.small-input{width:100%}.card-head{align-items:flex-start;flex-direction:column}}
+@media(max-width:600px){.topbar-inner{align-items:flex-start}.top-actions{flex-direction:column;align-items:flex-end}.brand h1{font-size:16px}}

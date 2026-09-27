@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>KJI Dojo Pangandaran - Bukti Pembayaran</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- jsPDF untuk membuat PDF langsung dari browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <img src="assets/logo-dojo.png" class="login-logo" alt="Logo KJI Dojo Pangandaran">
+    <h1>KJI DOJO PANGANDARAN</h1>
+    <p class="login-title">SISTEM BUKTI PEMBAYARAN</p>
+
+    <form id="loginForm">
+      <label>Username</label>
+      <input id="loginUser" type="text" placeholder="Username" required autocomplete="username">
+
+      <label>Password</label>
+      <input id="loginPass" type="password" placeholder="Password" required autocomplete="current-password">
+
+      <button type="submit" class="primary full">🔐 Masuk</button>
+      <div id="loginError" class="error"></div>
+    </form>
+
+    <div class="login-hint">
+      Created By: <b>kji dojo pangandaran</b>
+    </div>
+  </div>
+</section>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="assets/logo-dojo.png" alt="Logo" class="brand-logo">
+        <div>
+          <h1>KJI DOJO PANGANDARAN</h1>
+          <p>SISTEM BUKTI PEMBAYARAN</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="loggedUser">Admin</span>
+        <button id="logoutBtn" class="outline">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="page-grid">
+      <section class="card">
+        <div class="card-head">
+          <div>
+            <h2>Input Bukti Pembayaran</h2>
+            <p>Isi data pembayaran lalu simpan atau cetak PDF.</p>
+          </div>
+          <button id="newBtn" class="outline">+ Baru</button>
+        </div>
+
+        <form id="paymentForm">
+          <div class="grid-2">
+            <div>
+              <label>No. Bukti</label>
+              <input id="receiptNo" required>
+            </div>
+            <div>
+              <label>Tanggal</label>
+              <input id="date" type="date" required>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Nama Pembayar</label>
+              <input id="payer" placeholder="Nama kohai / pembayar" required>
+            </div>
+            <div>
+              <label>No. HP</label>
+              <input id="phone" placeholder="08xxxxxxxxxx">
+            </div>
+          </div>
+
+          <div>
+            <label>Keperluan / Keterangan Pembayaran</label>
+            <input id="description" placeholder="Contoh: UKT Kenaikan Tingkat Sabuk" required>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label>Nominal (Rp)</label>
+              <input id="amount" type="number" min="0" required placeholder="200000">
+            </div>
+            <div>
+              <label>Metode Pembayaran</label>
+              <select id="method">
+                <option>Tunai</option>
+                <option>Transfer</option>
+                <option>QRIS</option>
+                <option>Lainnya</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label>Catatan</label>
+            <textarea id="notes" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="primary">💾 Simpan</button>
+            <button type="button" id="pdfBtn" class="success">📄 Cetak PDF</button>
+            <button type="button" id="deleteBtn" class="danger">🗑 Hapus</button>
+          </div>
+          <div id="formMessage" class="message"></div>
+        </form>
+      </section>
+
+      <aside class="card preview-card">
+        <div class="card-head">
+          <div>
+            <h2>Pratinjau</h2>
+            <p>Contoh tampilan bukti pembayaran.</p>
+          </div>
+        </div>
+        <div id="receiptPreview" class="receipt">
+          <div class="receipt-header">
+            <img src="assets/logo-dojo.png" alt="Logo" class="receipt-logo">
+            <div>
+              <h3>KJI DOJO PANGANDARAN</h3>
+              <strong>BUKTI PEMBAYARAN</strong>
+              <small>KOPORYU JU-JITSU INDONESIA</small>
+            </div>
+          </div>
+          <div class="receipt-number">
+            <span>No. Bukti</span><b id="pvNo">-</b>
+          </div>
+          <div class="receipt-table">
+            <div><span>Tanggal</span><b id="pvDate">-</b></div>
+            <div><span>Nama Pembayar</span><b id="pvPayer">-</b></div>
+            <div><span>No. HP</span><b id="pvPhone">-</b></div>
+            <div><span>Keperluan</span><b id="pvDescription">-</b></div>
+            <div><span>Metode</span><b id="pvMethod">-</b></div>
+            <div class="total"><span>Total Pembayaran</span><b id="pvAmount">Rp 0</b></div>
+          </div>
+          <p class="terbilang" id="pvTerbilang">Terbilang: -</p>
+          <p class="pv-notes" id="pvNotes"></p>
+          <div class="signature">
+            <div class="stamp-wrap">
+              <span>Petugas Keuangan</span>
+              <div class="signature-space">
+                <img src="assets/stampel-dojo.png" class="stamp" alt="Stampel Dojo">
+              </div>
+              <b>Gustian Sastriajie Kohar, ST., S.Pd.I</b>
+            </div>
+          </div>
+          <div class="receipt-footer">Bukti pembayaran ini dibuat sebagai tanda terima yang sah.</div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="card history-card">
+      <div class="card-head">
+        <div>
+          <h2>Riwayat Pembayaran</h2>
+          <p>Data tersimpan pada browser perangkat ini.</p>
+        </div>
+        <input id="historySearch" class="small-input" placeholder="Cari nama / no. bukti">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>No. Bukti</th><th>Tanggal</th><th>Pembayar</th><th>Keperluan</th><th>Nominal</th><th>Aksi</th></tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
