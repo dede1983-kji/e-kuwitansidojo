@@ -66,350 +66,112 @@ async function imageData(url){
     const c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext("2d").drawImage(img,0,0);resolve({data:c.toDataURL("image/png"),w:img.naturalWidth,h:img.naturalHeight})
   };img.onerror=reject;img.src=url})
 }
-async function createPDF(r){
-  if(!window.jspdf){
-    alert("Library PDF belum termuat. Pastikan internet aktif saat membuka aplikasi.");
+async function createPDF(r) {
+  if (!window.jspdf?.jsPDF) {
+    showMessage("Library PDF belum termuat. Browser akan membuka dialog Cetak; pilih 'Simpan sebagai PDF'.", "warning");
+    printReceipt();
     return;
   }
 
   try {
     const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+    const W = 210, H = 297, margin = 18;
+    const logo = await imageDataFromElement(document.querySelector(".receipt-logo"));
 
-    // Ukuran A4
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "mm",
-      format: "a4"
-    });
+    doc.setDrawColor(20, 20, 20);
+    doc.setLineWidth(0.7);
+    doc.rect(margin, 18, W - margin * 2, H - 36);
 
-    const W = 210;
-    const H = 297;
-
-    const margin = 15;
-    const contentW = W - (margin * 2);
-
-    // =========================
-    // WARNA
-    // =========================
-    const dark = [17, 24, 39];
-    const gray = [107, 114, 128];
-    const lightGray = [229, 231, 235];
-    const green = [22, 163, 74];
-
-    // =========================
-    // LOGO
-    // =========================
-    const logo = await imageData("logo-dojo.png");
-    const stamp = await imageData("stampel-dojo.png");
-
-    // =========================
-    // BORDER UTAMA
-    // =========================
-    doc.setDrawColor(...dark);
-    doc.setLineWidth(0.6);
-    doc.roundedRect(
-      margin,
-      15,
-      contentW,
-      267,
-      3,
-      3
-    );
-
-    // =========================
-    // HEADER
-    // =========================
-
-    doc.addImage(
-      logo.data,
-      "PNG",
-      margin + 7,
-      23,
-      27,
-      27
-    );
-
+    doc.addImage(logo.data, "PNG", margin + 5, 23, 25, 25);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.setTextColor(...dark);
-
-    doc.text(
-      "KJI DOJO PANGANDARAN",
-      margin + 42,
-      31
-    );
-
+    doc.text("KJI DOJO PANGANDARAN", margin + 34, 29);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-
-    doc.text(
-      "KOPORYU JU-JITSU INDONESIA",
-      margin + 42,
-      38
-    );
-
+    doc.text("KOPORYU JU-JITSU INDONESIA", margin + 34, 35);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
+    doc.text("BUKTI PEMBAYARAN", W / 2, 48, { align: "center" });
+    doc.line(margin + 5, 53, W - margin - 5, 53);
 
-    doc.text(
-      "BUKTI PEMBAYARAN",
-      W / 2,
-      57,
-      { align: "center" }
-    );
-
-    // Garis header
-    doc.setDrawColor(...lightGray);
-    doc.setLineWidth(0.5);
-
-    doc.line(
-      margin + 7,
-      63,
-      W - margin - 7,
-      63
-    );
-
-    // =========================
-    // NOMOR BUKTI
-    // =========================
-
-    let y = 75;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(...gray);
-
-    doc.text(
-      "No. Bukti",
-      margin + 8,
-      y
-    );
-
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(...dark);
-
-    doc.text(
-      String(r.no || "-"),
-      margin + 55,
-      y
-    );
-
-    y += 14;
-
-    // =========================
-    // DATA PEMBAYARAN
-    // =========================
-
-    const row = (label, value) => {
-
+    let y = 65;
+    const valueX = margin + 55;
+    const maxValueWidth = W - margin - 8 - valueX;
+    const line = (label, value) => {
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
-      doc.setTextColor(...gray);
-
-      doc.text(
-        label,
-        margin + 8,
-        y
-      );
-
+      doc.text(label, margin + 8, y);
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(...dark);
-
-      const textValue = String(value || "-");
-
-      // Supaya keterangan panjang tidak keluar halaman
-      doc.text(
-        textValue,
-        margin + 55,
-        y,
-        {
-          maxWidth: contentW - 70
-        }
-      );
-
-      doc.setDrawColor(...lightGray);
-      doc.setLineWidth(0.3);
-
-      doc.line(
-        margin + 7,
-        y + 5,
-        W - margin - 7,
-        y + 5
-      );
-
-      y += 15;
+      const lines = wrapText(doc, value || "-", maxValueWidth);
+      doc.text(lines, valueX, y);
+      y += Math.max(9, lines.length * 5);
+      doc.setDrawColor(210, 210, 210);
+      doc.line(margin + 5, y - 3, W - margin - 5, y - 3);
+      y += 5;
     };
 
-    row("Tanggal", formatDate(r.date));
-    row("Nama Pembayar", r.payer);
-    row("No. HP", r.phone);
-    row("Keperluan", r.description);
-    row("Metode Pembayaran", r.method);
-
-    // =========================
-    // TOTAL PEMBAYARAN
-    // =========================
-
-    y += 3;
-
-    doc.setFillColor(245, 247, 250);
-
-    doc.roundedRect(
-      margin + 7,
-      y - 7,
-      contentW - 14,
-      20,
-      2,
-      2,
-      "F"
-    );
+    line("No. Bukti", r.no);
+    line("Tanggal", formatDate(r.date));
+    line("Nama Pembayar", r.payer);
+    line("No. HP", r.phone);
+    line("Keperluan", r.description);
+    line("Metode Pembayaran", r.method);
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
-    doc.setTextColor(...dark);
-
-    doc.text(
-      "TOTAL PEMBAYARAN",
-      margin + 13,
-      y + 5
-    );
-
-    doc.setFontSize(13);
-    doc.setTextColor(...green);
-
-    doc.text(
-      rupiah(r.amount),
-      W - margin - 13,
-      y + 5,
-      { align: "right" }
-    );
-
-    y += 28;
-
-    // =========================
-    // TERBILANG
-    // =========================
+    doc.text("TOTAL PEMBAYARAN", margin + 8, y);
+    doc.text(rupiah(r.amount), W - margin - 8, y, { align: "right" });
+    doc.setDrawColor(20, 20, 20);
+    doc.line(margin + 5, y + 4, W - margin - 5, y + 4);
+    y += 17;
 
     doc.setFont("helvetica", "italic");
     doc.setFontSize(9);
-    doc.setTextColor(...gray);
+    const terbilangLines = wrapText(doc, "Terbilang: " + (r.amount ? terbilang(r.amount) + " rupiah" : "-"), W - margin * 2 - 16);
+    doc.text(terbilangLines, margin + 8, y);
+    y += terbilangLines.length * 5 + 8;
 
-    doc.text(
-      "Terbilang: " +
-      terbilang(r.amount) +
-      " rupiah",
-      margin + 8,
-      y,
-      {
-        maxWidth: contentW - 16
-      }
-    );
-
-    y += 16;
-
-    // =========================
-    // CATATAN
-    // =========================
-
-    if(r.notes){
-
+    if (r.notes) {
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(...gray);
-
-      doc.text(
-        "Catatan:",
-        margin + 8,
-        y
-      );
-
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(...dark);
-
-      doc.text(
-        r.notes,
-        margin + 35,
-        y,
-        {
-          maxWidth: contentW - 45
-        }
-      );
-
-      y += 15;
+      const noteLines = wrapText(doc, "Catatan: " + r.notes, W - margin * 2 - 16);
+      doc.text(noteLines, margin + 8, y);
+      y += noteLines.length * 5 + 8;
     }
 
-    // =========================
-    // TANDA TANGAN
-    // =========================
-
-    const sx = 130;
-    const sy = 220;
-
+    const sy = 222;
+    const sx = 135;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
-    doc.setTextColor(...dark);
-
-    doc.text(
-      "Petugas Keuangan",
-      sx + 25,
-      sy,
-      { align: "center" }
-    );
-
-    // Stempel
-    doc.addImage(
-      stamp.data,
-      "PNG",
-      sx,
-      sy + 5,
-      50,
-      50
-    );
-
+    doc.text("Petugas Keuangan", sx + 25, sy, { align: "center" });
+    doc.setDrawColor(100, 100, 100);
+    doc.line(sx, sy + 42, sx + 50, sy + 42);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
-
-    doc.text(
-      "Gustian Sastriajie Kohar, ST., S.Pd.I",
-      sx + 25,
-      sy + 61,
-      { align: "center" }
-    );
-
-    // =========================
-    // FOOTER
-    // =========================
+    doc.text("Gustian Sastriajie Kohar, ST., S.Pd.I", sx + 25, sy + 49, { align: "center" });
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.setTextColor(...gray);
+    doc.setTextColor(100, 100, 100);
+    doc.text("Bukti pembayaran ini dibuat sebagai tanda terima yang sah.", W / 2, 269, { align: "center" });
 
-    doc.text(
-      "Bukti pembayaran ini dibuat sebagai tanda terima yang sah.",
-      W / 2,
-      273,
-      { align: "center" }
-    );
-
-    // =========================
-    // SIMPAN PDF
-    // =========================
-
-    const fileName =
-      (r.no || "bukti-pembayaran")
-      .replace(/[\/\\]/g, "-") +
-      ".pdf";
-
-    doc.save(fileName);
-
-  } catch(error){
-
-    console.error(error);
-
-    alert(
-      "PDF gagal dibuat. Pastikan folder assets berisi logo-dojo.png dan stampel-dojo.png."
-    );
+    doc.save(safeFileName(r.no) + ".pdf");
+    showMessage("PDF berhasil dibuat dan diunduh.");
+  } catch (err) {
+    console.error(err);
+    showMessage("PDF langsung gagal dibuat. Membuka dialog Cetak sebagai cadangan.", "warning");
+    printReceipt();
   }
+}
+
+function printReceipt() {
+  window.print();
+}
+
+function showMessage(message, type = "success") {
+  const el = $("formMessage");
+  el.textContent = message;
+  el.className = "message " + type;
 }
 
 $("loginForm").addEventListener("submit",e=>{e.preventDefault();if($("loginUser").value===LOGIN_USER&&$("loginPass").value===LOGIN_PASS){
